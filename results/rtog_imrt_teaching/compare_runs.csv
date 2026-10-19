@@ -1,0 +1,23 @@
+,unet3d_ep10,attn_unet3d_ep10
+status,FINISHED,FINISHED
+duration,0:06:10,0:05:44
+param n_params_M,25.89,24.84
+param peak_gpu_gib,11.3,11.0
+param model,unet3d,attn_unet3d
+test_dose_score_mean,2.748,2.023
+test_DVH_score_mean,8.205,2.800
+best_val_loss,1.843,1.324
+best_epoch,10,9
+test_MAE_all_mean,1.953,1.519
+test_MAE_ptv_mean,12.085,2.418
+test_PTV_D95_absdiff_mean,10.986,2.785
+test_PTV_D2_absdiff_mean,12.728,1.922
+test_PTV_Mean_absdiff_mean,11.693,1.851
+test_Lungs_V20_absdiff_mean,4.832,4.830
+test_Lungs_V5_absdiff_mean,4.899,4.342
+test_Lungs_Mean_absdiff_mean,2.740,1.425
+test_Heart_V30_absdiff_mean,7.504,5.383
+test_Heart_V5_absdiff_mean,6.630,4.109
+test_Heart_Mean_absdiff_mean,3.274,1.849
+test_Esophagus_Mean_absdiff_mean,5.549,2.301
+test_Spinalcord_Max_absdiff_mean,7.680,4.973

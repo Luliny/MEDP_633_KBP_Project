@@ -1,0 +1,34 @@
+# conda environment for the MEDP 633 KBP project (3D dose prediction on RTOG 0617 IMRT plans).
+# S#
+#   conda env create -f environment_rtog_imrt.yml
+#   conda activate kbp_rtog_imrt
+#
+# Everything is installed with pip (a conda "defaults" or "conda-forge" build of these packages is not needed).
+# On the course server use the existing AI_RTP environment instead: do not install anything there.
+name: kbp_rtog_imrt
+channels:
+  - defaults
+dependencies:
+  - python=3.13
+  - pip
+  - pip:
+      # torch 2.9.0 from PyPI is the CUDA 12.8 build on Linux (tested: 2.9.0+cu128). To select the CUDA build explicitly,
+      # add the line "--extra-index-url https://download.pytorch.org/whl/cu128" below and keep "torch==2.9.0".
+      # On Windows/macOS the PyPI wheel is CPU-only (training would be very slow).
+      - torch==2.9.0
+      - torchio==0.20.23
+      - albumentations==2.0.8
+      - lightning==2.5.6
+      - mlflow==3.3.2
+      - numpy==2.2.6
+      - pandas==2.3.3
+      - scipy==1.16.0
+      - scikit-image==0.25.2
+      - matplotlib==3.10.0
+      - SimpleITK==2.5.2
+      - pydicom==2.4.4
+      - platipy==0.7.2
+      # OPTIONAL, only for the interactive 3D figure (needs a display). Uncomment if wanted:
+      # - napari==0.6.6
+      # - PyQt5==5.15.10
+      # - vispy==0.15.2

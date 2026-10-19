@@ -1,0 +1,39 @@
+# Python packages for the MEDP 633 KBP project (3D dose prediction on RTOG 0617 IMRT plans).
+# Pinned to the versions of the tested environment (conda env AI_RTP , Python 3.13.5).
+#
+#   python -m venv kbp_env && source kbp_env/bin/activate        # Python 3.13 recommended (3.10-3.12 are likely fine, not tested)
+#   pip install -r requirements_rtog_imrt.txt
+#
+# On the course server the AI_RTP environment already has everything: do not install anything there.
+
+# --- deep learning ---------------------------------------------------------------------------------------------
+# torch: the tested build is 2.9.0+cu128 (CUDA 12.8). The Linux wheel of torch 2.9.0 on PyPI is the CUDA 12.8 build,
+# so the line below is enough on a Linux machine with an NVIDIA driver for CUDA 12.8 or newer. To pick the CUDA build explicitly:
+#   pip install torch==2.9.0 --index-url https://download.pytorch.org/whl/cu128
+# (other CUDA versions: replace cu128, see https://pytorch.org/get-started/previous-versions/). Windows/macOS: the PyPI wheel is CPU-only.
+torch==2.9.0
+torchio==0.20.23          # imported by MHRG_files/model.py
+albumentations==2.0.8     # imported by MHRG_files/model.py
+lightning==2.5.6          # imported by MHRG_files/model.py
+
+# --- experiment tracking ----------------------------------------------------------------------------------------
+mlflow==3.3.2
+
+# --- numerics, tables, plots ------------------------------------------------------------------------------------
+numpy==2.2.6
+pandas==2.3.3
+scipy==1.16.0
+scikit-image==0.25.2
+matplotlib==3.10.0
+
+# --- medical imaging (visualization/, used by the figures of the training script) -------------------------------
+SimpleITK==2.5.2
+pydicom==2.4.4
+platipy==0.7.2
+
+# --- OPTIONAL: interactive 3D figure (visualization/vis_napari_3d.py, Step B without --skip_3d) ----------------
+# Needs a display (not on a headless server). The training script does not need them: leave these lines
+# commented out unless you want the 3D figures.
+# napari==0.6.6
+# PyQt5==5.15.10
+# vispy==0.15.2

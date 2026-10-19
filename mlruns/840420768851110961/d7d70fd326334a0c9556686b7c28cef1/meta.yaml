@@ -1,0 +1,14 @@
+artifact_uri: file:///home/grp_airtp/AI_RTP/KBP_Project/mlruns/840420768851110961/d7d70fd326334a0c9556686b7c28cef1/artifacts
+end_time: 1792442908418
+entry_point_name: ''
+experiment_id: '840420768851110961'
+lifecycle_stage: active
+run_id: d7d70fd326334a0c9556686b7c28cef1
+run_name: unet3d_ep100
+source_name: ''
+source_type: 4
+source_version: ''
+start_time: 1792439227750
+status: 3
+tags: []
+user_id: grp_airtp

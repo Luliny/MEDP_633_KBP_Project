@@ -1,0 +1,101 @@
+/home/grp_airtp/anaconda3/envs/AI_RTP/lib/python3.13/site-packages/torch/__init__.py:1617: UserWarning: Please use the new API settings to control TF32 behavior, such as torch.backends.cudnn.conv.fp32_precision = 'tf32' or torch.backends.cuda.matmul.fp32_precision = 'ieee'. Old settings, e.g, torch.backends.cuda.matmul.allow_tf32 = True, torch.backends.cudnn.allow_tf32 = True, allowTF32CuDNN() and allowTF32CuBLAS() will be deprecated after Pytorch 2.9. Please see https://pytorch.org/docs/main/notes/cuda.html#tensorfloat-32-tf32-on-ampere-and-later-devices (Triggered internally at /pytorch/aten/src/ATen/Context.cpp:80.)
+  _C._set_float32_matmul_precision(precision)
+run unet3d_ep10 | model unet3d | epochs 10 | device cuda | results in /home/grp_airtp/AI_RTP/KBP_Project/results/rtog_imrt_teaching/unet3d_ep10
+QC: reusing cached raw statistics from /home/grp_airtp/AI_RTP/KBP_Project/results/rtog_imrt_teaching/case_qc.csv
+QC table saved to /home/grp_airtp/AI_RTP/KBP_Project/results/rtog_imrt_teaching/case_qc.csv
+QC: 179 files, 163 kept, 16 excluded
+reason
+low_dose_plan        12
+empty_structure       2
+duplicate_patient     2
+  excluded 0617-385185_1    low_dose_plan  (PTV mean raw 24.2 Gy)
+  excluded 0617-450775_1    low_dose_plan  (PTV mean raw 42.0 Gy)
+  excluded 0617-450775_2    low_dose_plan  (PTV mean raw 20.7 Gy)
+  excluded 0617-517268_0    low_dose_plan  (PTV mean raw 11.6 Gy)
+  excluded 0617-517268_1    low_dose_plan  (PTV mean raw 53.1 Gy)
+  excluded 0617-544856_1    low_dose_plan  (PTV mean raw 40.8 Gy)
+  excluded 0617-583972_0    low_dose_plan  (PTV mean raw 8.5 Gy)
+  excluded 0617-657744_0    empty_structure  (PTV mean raw 66.9 Gy)
+  excluded 0617-673098_0    low_dose_plan  (PTV mean raw 39.6 Gy)
+  excluded 0617-673893_0    duplicate_patient (kept 0617-673893_2)  (PTV mean raw 76.9 Gy)
+  excluded 0617-685190_0    low_dose_plan  (PTV mean raw 18.4 Gy)
+  excluded 0617-689511_0    empty_structure  (PTV mean raw 63.0 Gy)
+  excluded 0617-706363_2    low_dose_plan  (PTV mean raw 53.5 Gy)
+  excluded 0617-736259_1    duplicate_patient (kept 0617-736259_2)  (PTV mean raw 60.6 Gy)
+  excluded 0617-736925_0    low_dose_plan  (PTV mean raw 25.3 Gy)
+  excluded 0617-795029_0    low_dose_plan  (PTV mean raw 24.1 Gy)
+QC check OK: 163 cases, one per patient
+split (patients): train 115 / val 24 / test 24 -> /home/grp_airtp/AI_RTP/KBP_Project/results/rtog_imrt_teaching/unet3d_ep10/split.csv
+input x (7, 128, 128, 128) target y (1, 128, 128, 128) | target PTV mean 60.0 Gy
+initialize network with xavier
+unet3d: output (1, 1, 128, 128, 128), 25.89 M parameters, peak GPU memory 11.3 GiB (forward+backward, batch 1)
+initialize network with xavier
+mlflow run id: 5fdb2c913cec4c9dad7d5d7fd8f80813
+Epoch [1/10] train MAE 3.783 | val MAE 3.232 | val dose score 4.890 | val DVH score 21.758 Gy | 35.9 s (0.26 s/case) | lr 5.0e-04  <- best
+Epoch [2/10] train MAE 3.303 | val MAE 2.885 | val dose score 4.343 | val DVH score 18.997 Gy | 35.9 s (0.26 s/case) | lr 5.0e-04  <- best
+Epoch [3/10] train MAE 2.923 | val MAE 2.467 | val dose score 3.760 | val DVH score 13.867 Gy | 35.8 s (0.26 s/case) | lr 5.0e-04  <- best
+Epoch [4/10] train MAE 2.643 | val MAE 2.372 | val dose score 3.609 | val DVH score 12.258 Gy | 35.9 s (0.26 s/case) | lr 5.0e-04  <- best
+Epoch [5/10] train MAE 2.467 | val MAE 2.112 | val dose score 3.251 | val DVH score 10.746 Gy | 35.9 s (0.26 s/case) | lr 5.0e-04  <- best
+Epoch [6/10] train MAE 2.293 | val MAE 1.974 | val dose score 3.048 | val DVH score 8.769 Gy | 36.0 s (0.26 s/case) | lr 5.0e-05  <- best
+Epoch [7/10] train MAE 2.225 | val MAE 2.025 | val dose score 3.133 | val DVH score 9.773 Gy | 35.8 s (0.26 s/case) | lr 5.0e-05
+Epoch [8/10] train MAE 2.189 | val MAE 1.915 | val dose score 2.972 | val DVH score 8.847 Gy | 35.8 s (0.26 s/case) | lr 5.0e-05  <- best
+Epoch [9/10] train MAE 2.159 | val MAE 1.900 | val dose score 2.939 | val DVH score 8.711 Gy | 35.8 s (0.26 s/case) | lr 5.0e-05  <- best
+Epoch [10/10] train MAE 2.135 | val MAE 1.843 | val dose score 2.851 | val DVH score 8.674 Gy | 35.9 s (0.26 s/case) | lr 5.0e-05  <- best
+training took 6.0 min; best epoch 10 by val_loss (val MAE 1.843 | dose score 2.851 | DVH score 8.674 Gy)
+  0617-410508_0: dose score 4.353 | DVH score 12.845 | MAE all 3.153 | PTV 19.503 Gy
+  0617-415627_0: dose score 1.283 | DVH score 2.500 | MAE all 1.166 | PTV 2.811 Gy
+  0617-429991_0: dose score 4.826 | DVH score 11.422 | MAE all 2.829 | PTV 15.404 Gy
+  0617-478567_0: dose score 2.732 | DVH score 11.331 | MAE all 2.092 | PTV 14.854 Gy
+  0617-483479_0: dose score 1.744 | DVH score 6.503 | MAE all 1.451 | PTV 10.919 Gy
+  0617-492081_0: dose score 2.372 | DVH score 4.365 | MAE all 0.936 | PTV 4.471 Gy
+  0617-509847_0: dose score 2.397 | DVH score 5.485 | MAE all 2.127 | PTV 4.805 Gy
+  0617-539367_0: dose score 2.428 | DVH score 6.586 | MAE all 1.868 | PTV 9.667 Gy
+  0617-567918_0: dose score 3.888 | DVH score 11.396 | MAE all 3.137 | PTV 19.464 Gy
+  0617-573244_0: dose score 4.868 | DVH score 15.767 | MAE all 3.992 | PTV 21.707 Gy
+  0617-574128_0: dose score 3.454 | DVH score 10.528 | MAE all 2.058 | PTV 15.859 Gy
+  0617-575441_0: dose score 2.098 | DVH score 10.767 | MAE all 1.767 | PTV 21.317 Gy
+  0617-578019_0: dose score 4.295 | DVH score 14.116 | MAE all 2.988 | PTV 20.558 Gy
+  0617-580557_0: dose score 1.966 | DVH score 4.541 | MAE all 1.852 | PTV 4.526 Gy
+  0617-607275_0: dose score 2.344 | DVH score 3.142 | MAE all 1.118 | PTV 3.589 Gy
+  0617-673893_2: dose score 1.566 | DVH score 5.820 | MAE all 1.195 | PTV 8.319 Gy
+  0617-676253_0: dose score 2.091 | DVH score 5.326 | MAE all 2.135 | PTV 3.851 Gy
+  0617-687172_0: dose score 1.598 | DVH score 8.426 | MAE all 0.957 | PTV 17.436 Gy
+  0617-727320_0: dose score 1.335 | DVH score 7.087 | MAE all 0.691 | PTV 13.960 Gy
+  0617-748674_0: dose score 2.000 | DVH score 2.628 | MAE all 1.637 | PTV 2.704 Gy
+  0617-753516_0: dose score 1.674 | DVH score 4.582 | MAE all 1.697 | PTV 6.332 Gy
+  0617-802620_0: dose score 2.834 | DVH score 6.894 | MAE all 1.588 | PTV 10.396 Gy
+  0617-805653_0: dose score 3.584 | DVH score 9.807 | MAE all 1.788 | PTV 15.137 Gy
+  0617-835318_0: dose score 4.227 | DVH score 15.064 | MAE all 2.659 | PTV 22.451 Gy
+
+Test results on 24 cases (mean +- std; diff = predicted - clinical; Gy or % volume):
+  dose_score                      2.748 +- 1.119
+  DVH_score                       8.205 +- 3.905
+  MAE_all                         1.953 +- 0.805
+  MAE_ptv                        12.085 +- 6.709
+  PTV_Mean_diff_signed           -5.976 +- 12.348
+  PTV_Mean_absdiff               11.693 +- 7.173
+  PTV_D95_diff_signed            -9.649 +- 8.742
+  PTV_D95_absdiff                10.986 +- 6.988
+  PTV_D2_diff_signed             -3.772 +- 14.237
+  PTV_D2_absdiff                 12.728 +- 7.411
+  Lungs_Mean_diff_signed         -1.485 +- 2.956
+  Lungs_Mean_absdiff              2.740 +- 1.854
+  Lungs_V20_diff_signed          -0.753 +- 6.604
+  Lungs_V20_absdiff               4.832 +- 4.564
+  Lungs_V5_diff_signed            1.017 +- 6.080
+  Lungs_V5_absdiff                4.899 +- 3.742
+  Heart_Mean_diff_signed         -3.166 +- 3.777
+  Heart_Mean_absdiff              3.274 +- 3.684
+  Heart_V30_diff_signed          -6.510 +- 11.318
+  Heart_V30_absdiff               7.504 +- 10.685
+  Heart_V5_diff_signed           -4.153 +- 7.619
+  Heart_V5_absdiff                6.630 +- 5.598
+  Esophagus_Mean_diff_signed     -3.333 +- 5.629
+  Esophagus_Mean_absdiff          5.549 +- 3.464
+  Spinalcord_Max_diff_signed      2.352 +- 9.341
+  Spinalcord_Max_absdiff          7.680 +- 5.814
+inference + metrics: 3.5 s for 24 cases
+0617-410508_0 -> 0617-410508_0_dvh_comparison.png, 0617-410508_0_dose_comparison.png, 0617-410508_0_overlay_clinical.png, 0617-410508_0_overlay_predicted.png
+0617-415627_0 -> 0617-415627_0_dvh_comparison.png, 0617-415627_0_dose_comparison.png, 0617-415627_0_overlay_clinical.png, 0617-415627_0_overlay_predicted.png
+0617-429991_0 -> 0617-429991_0_dvh_comparison.png, 0617-429991_0_dose_comparison.png, 0617-429991_0_overlay_clinical.png, 0617-429991_0_overlay_predicted.png
+done. results in /home/grp_airtp/AI_RTP/KBP_Project/results/rtog_imrt_teaching/unet3d_ep10 | mlflow run 5fdb2c913cec4c9dad7d5d7fd8f80813

@@ -1,0 +1,10 @@
+# Model weight checkpoints (too large for GitHub)
+best_model.pt
+*.pt
+
+# Python
+__pycache__/
+*.pyc
+
+# OS
+.DS_Store
