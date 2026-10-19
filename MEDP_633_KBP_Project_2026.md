@@ -99,13 +99,11 @@ KBP_Project/
 `-- preprocess/identify_imrt_plans.py, IMRT_identification_findings.md   how the IMRT plans were selected (instructor)
 ```
 
-Folders such as `data`, `models`, `options`, `util` and `scripts`, and the files `MEDP633_Project1_AI_RTP.ipynb`, `train.py`, `models/doseprediction3d_model.py` and `models/networks3d.py`, belong to the earlier DoseRTX code and are **not used** by the workflow of this project.
-
-**Where to look.** The purpose of the table is to guide you where to look when you work on the assignment (Section 7). The training script is written like a notebook, with one "STEP" banner per cell. Line numbers refer to the files of the package (`test_notebook_rtog_imrt.py`, abbreviated TNR; search for the names if the lines moved).
+**Main workflow steps** The training script is written like a notebook, with one "STEP" banner per cell. Line numbers refer to the files of the package (`test_notebook_rtog_imrt.py`, 
 
 | # | What | File:line | Code snippet | Comment |
 |---|---|---|---|---|
-| 1a | Location of the data sets | `test_notebook_rtog_imrt.py:76` | `DATA_DIR = '/home/grp_airtp/AI_RTP/VCU_CLEAN/VCU_DATA/Processed_rtog_npz_IMRT'` | Folder with the npz files; change it to your own copy. |
+| 1a | Location of the data sets | `test_notebook_rtog_imrt.py:76` | `DATA_DIR = '/home/Your_Project_dir/VCU_CLEAN/VCU_DATA/Processed_rtog_npz_IMRT'` | Folder with the npz files; change it to your own copy. |
 | 1b | Split into train / val / test | `test_notebook_rtog_imrt.py:295` | `good['split'] = split_by_patient(good, SPLIT_FRACTIONS, SEED)` | By patient, seed 42, fractions `SPLIT_FRACTIONS` (line 93, 0.70 / 0.15 / 0.15) give 115 / 24 / 24; the lists are written to `<run>/split.csv`. |
 | 2 | Load one case for training | `test_notebook_rtog_imrt.py:337` | `def __getitem__(self, index):` | `RTOGDoseDataset.__getitem__` (lines 337-350) loads one npz and builds the 7-channel input `x` and the target `y = DOSE * DOSE_SCALE`. |
 | 3 | Data augmentation | `test_notebook_rtog_imrt.py:348` | `if self.training and self.flip_lr and torch.rand(1).item() < 0.5:` | Random left-right flip (X axis) of input and dose together, training cases only. Switch: `AUGMENT_FLIP_LR` (line 95). |
@@ -128,13 +126,10 @@ Folders such as `data`, `models`, `options`, `util` and `scripts`, and the files
 
 **Item 4: how the loss and the scores are calculated.**
 
-- **Loss (what is optimised).** The MAE between predicted and clinical dose over all 128 x 128 x 128 voxels, in Gy. It is easy to read, and it is not dominated by a few high-dose voxels (as the MSE would be). Most voxels are air or low dose, so this MAE looks small even if the target is badly predicted: predicting zero dose everywhere gives 5.24 Gy on the 24 test cases. Always look at the two scores below, not only at the loss.
 - **Dose score (measured, not optimised).** The mean of |predicted - clinical dose| over the voxels **inside the body**. The body mask is the CT above -500 HU (`BODY_HU`). Zero dose everywhere gives 8.14 Gy.
 - **DVH score (measured, not optimised).** For each case, the mean of |predicted - clinical| over **13 DVH numbers**, in Gy; then the mean over the cases. Zero dose everywhere gives 40.67 Gy. Each number is computed from the voxels of one structure only:
   - PTV: **D1, D95, D99**. D95 is the dose that 95% of the PTV volume receives at least (the 5th percentile of the PTV voxel doses, "is the target covered?"), D99 the dose that 99% of the volume receives at least (1st percentile), D1 the dose of the hottest 1% (99th percentile, the hot spot).
   - Each of the 5 organs (cord, esophagus, heart, lung_ipsi, lung_cntr): **Dmean** (mean dose) and **Dmax** (highest voxel dose). 5 x 2 = 10 numbers. In total 3 + 10 = 13.
-- Both scores are computed every epoch on the training and the validation cases, and once at the end on the test cases, by the same function (`openkbp_scores`), so the curves and the final numbers are comparable. A perfect prediction gives 0 for both. A score is lower = better.
-- **Deviations from OpenKBP.** (1) A **body mask** (CT > -500 HU) replaces the "possible dose mask" of OpenKBP, which we do not have. (2) **Dmax instead of D0.1cc** for the organs: OpenKBP uses the dose to the hottest 0.1 cc, which needs the voxel size, and our npz files carry none; Dmax is the plain maximum voxel dose, so it is more sensitive to single voxels and the DVH score is noisier. (3) Our own structure list for lung plans (OpenKBP is head-and-neck). (4) **Normalised units** (PTV mean = 60 Gy), so the numbers cannot be compared with published OpenKBP values.
 - In addition, after training, the test step (STEP 7) writes the differences (predicted minus clinical) of clinical DVH metrics, for example PTV D95, lung V20 and heart mean dose, to `test_metrics.csv` and `test_summary.csv`. The full definitions are in "Evaluation scores" of `RTOG_IMRT_WORKFLOW.md` (Step G).
 
 **Item 10: where the example outputs are.** All outputs of one run are in `results/rtog_imrt_teaching/<run_name>/`. The package contains two 10-epoch demonstration runs, `unet3d_ep10` and `attn_unet3d_ep10` (they are not converged; use them to see what the outputs look like):
@@ -152,37 +147,28 @@ Folders such as `data`, `models`, `options`, `util` and `scripts`, and the files
 
 The same files exist in `results/rtog_imrt_teaching/attn_unet3d_ep10/`. For orientation only (10 epochs, one seed, test set of 24 cases): the U-Net reaches a test dose score of 2.75 and a DVH score of 8.21; the attention U-Net 2.02 and 2.80.
 
-**Monitoring with mlflow.** Every run is logged automatically to `mlruns/` (experiment `RTOG_IMRT_teaching`): the settings of the run (model, epochs, learning rate, filters, dropout, ...), the loss and both scores for train and validation after every epoch, the test scores, and the output files. You can watch a run, and compare runs, from the terminal: `python mlflow_tools.py list`, `watch` and `compare` (the web interface `mlflow ui` does not work in the `AI_RTP` environment). See `MLFLOW_GUIDE.md`.
+**Monitoring with mlflow.** Every run is logged automatically to `mlruns/` (experiment `RTOG_IMRT_teaching`): the settings of the run (model, epochs, learning rate, filters, dropout, ...), the loss and both scores for train and validation after every epoch, the test scores, and the output files. You can watch a run, and compare runs, from the terminal: `python mlflow_tools.py list`, `watch` and `compare` 
 
-**Student documents.** `RTOG_IMRT_WORKFLOW.md` explains how to run the workflow step by step, what every output file contains, how the scores are defined, how to reuse a trained model, and how to modify the code (exercises: change the model, the filters, the dropout, the loss, the augmentation). `MLFLOW_GUIDE.md` explains the monitoring.
+```bash
+python mlflow_tools.py list        # all runs and their status
+python mlflow_tools.py watch       # follow the newest run until it ends
+python mlflow_tools.py compare     # table + curves of all finished runs
+```
+`compare` writes `results/rtog_imrt_teaching/compare_runs.csv` and `.png` (use `--csv` and `--out` for other names).
 
-# 5. Pretrained model
-
-The pretrained model of the earlier version of this project (doseRTX, MSK data), `checkpoints/MAE_Moment_loss/saved_latest_net_G.pth`, is still in the package folder, but it **cannot be used with this code**: it was saved from a network with BatchNorm layers (its file contains `BN.*` weights), while the current U-Net uses InstanceNorm, and it was trained on the MSK data. Loading it into the current network fails.
-
-Instead, the package provides trained checkpoints of this workflow:
-
-- `results/rtog_imrt_teaching/unet3d_ep10/best_model.pt` (U-Net) and `results/rtog_imrt_teaching/attn_unet3d_ep10/best_model.pt` (attention U-Net), each about 100 MB. They are **10-epoch demonstration runs**, not converged.
-- **[Placeholder: the instructor may provide a 100-epoch reference model. Location and link to be added.]**
-
-To use a checkpoint, see the snippet in `RTOG_IMRT_WORKFLOW.md`, Step H ("reuse a trained model"): it rebuilds the network, loads `best_model.pt` and predicts one case. If you changed `UNET_ENC_CHS`, use the same widths there.
 
 # 6. Work to do
 
 Our work to do are:
-
-1. Get access to a computer with a GPU: an account on the course server (or, as an option, Google Colab, Section 2). **[instructor: add how to get the server account and access]**
-2. Install the coding environment (on the server: activate `AI_RTP`; elsewhere: the install files of Section 2) and clone the project code (Section 4).
+1. setup account on Google colab or a computer with GPU.
+2. Install the coding environment and clone the project code (Section 4).
 3. Get the data set (Section 3) and set `DATA_DIR`.
-4. Run the quick test to check that everything works (about 1 minute; it makes a run called `quick_test`, which you can delete afterwards):
-
+4. Run the quick test to check that everything works 
    ```
    python -u test_notebook_rtog_imrt.py --epochs 1 --max_cases 12 --run_name quick_test
-   ```
 
-5. Run a trained checkpoint on a test case with the snippet of Step H of `RTOG_IMRT_WORKFLOW.md` and look at the example figures (Section 5 and Section 4, item 10).
 6. Train the initial network with the default settings (about 1 hour for 100 epochs for the U-Net), and monitor it with mlflow (`python mlflow_tools.py watch`).
-7. Then tune: change the settings (Section 7, item 3), one change at a time, and compare the runs.
+7. Then tune: change the settings, and compare the runs.
 
 # 7. Project Assignment
 
@@ -194,67 +180,3 @@ You are going to submit a project report with 4 sections in the format of a pape
 
 3. **Model refinement and hyperparameter tuning.** You should tune the network architecture and hyperparameters to optimize the prediction accuracy of your network in terms of the final validation dose and DVH scores (smaller is better). At least one of the following hyperparameters should be fine-tuned: number of filters, dropout rate, learning rate, type of data augmentation, or adjust network structure, etc. Present the results from your own network similarly as in item 2 above. **6 points**.
 
-Figure 4. An example network architecture diagram **[instructor: insert the image here]**
-
-## Hints from the code
-
-**Item 1: where to read each specific.**
-
-| Specific | Where |
-|---|---|
-| Type of the network | `MODEL_NAME` (line 79) and `get_model` (line 388) of `test_notebook_rtog_imrt.py`; classes in `MHRG_files/model.py` (`UNet3D` line 306; `Attn_UNet3D` line 640). The default is `unet3d`: a 3D U-Net with 5 levels, 3x3x3 convolutions, ReLU, InstanceNorm, max-pooling for down-sampling, trilinear up-sampling followed by a convolution, skip connections (concatenation), a final 1x1x1 convolution and a ReLU (the dose cannot be negative). Output: 25.89 M parameters. |
-| Loss function | `criterion = nn.L1Loss()` (line 460): MAE. |
-| Optimizer | `configure_optimizers(...)` (line 560): AdamW, weight decay 0.01, learning rate `LR` = 5e-4, divided by 10 after half of the epochs (line 561). Batch size 1. |
-| Data augmentation | line 348: random left-right flip, probability 0.5, training cases only. |
-| Numbers for the Methods section | The check line printed at the start of a run (`unet3d: output ..., 25.89 M parameters, ...`), the split line (`train 115 / val 24 / test 24`), and the settings of each run stored in mlflow (model, epochs, learning rate, filters, dropout; `python mlflow_tools.py list`). |
-
-**Item 1: feature-map sizes for the diagram** (default `unet3d`, batch size 1; the volume is 128 x 128 x 128; each "block" is Conv3x3x3 - ReLU - InstanceNorm - Conv3x3x3 - ReLU - InstanceNorm):
-
-| Level | Encoder (after the block) | Decoder (after the block) |
-|---|---|---|
-| Input | 7 x 128³ | |
-| 1 | 32 x 128³ | up-conv 64 -> 32, concatenate the skip (32): 64 -> block -> **32 x 128³** |
-| 2 | 64 x 64³ (after max-pool 2) | up-conv 128 -> 64, concatenate (64): 128 -> block -> **64 x 64³** |
-| 3 | 128 x 32³ | up-conv 256 -> 128, concatenate (128): 256 -> block -> **128 x 32³** |
-| 4 | 256 x 16³ | up-conv 512 -> 256, concatenate (256): 512 -> block -> **256 x 16³** |
-| 5 (bottom) | 512 x 8³ (this block contains the dropout layer, p = 0.4) | |
-| Output | | 1x1x1 convolution, 32 -> 1, then ReLU: 1 x 128³ |
-
-Each up-conv doubles the size of the map (8³ -> 16³ -> 32³ -> 64³ -> 128³) and then applies a 3x3x3 convolution. If you change `UNET_ENC_CHS`, replace the channel numbers (the decoder mirrors the encoder). The attention U-Net has the same widths but adds attention gates on the skip connections, and deep supervision (see `MHRG_files/model.py` line 640).
-
-**Item 2: curves, scores and when to stop.**
-
-- After a run, `results/rtog_imrt_teaching/<run>/history.csv` has one row per epoch with the columns `epoch, train_mae, val_mae, train_dose_score, val_dose_score, train_dvh_score, val_dvh_score, lr, seconds`. Plot from it, or use `learning_curves.png` (loss, dose score, DVH score; train and validation). `train_mae` / `val_mae` are the loss (called `train_loss` / `val_loss` in mlflow). The same six series are logged to mlflow every epoch (`python mlflow_tools.py compare` makes a table and a figure with the curves of several runs).
-- The train numbers are averaged over the epoch with flipped cases and dropout on, so the train curve is not directly comparable with the validation curve; validation below training is normal here.
-- **When to stop.** The script keeps the checkpoint of the epoch with the lowest value of the validation metric chosen by `SELECT_BEST_BY` (line 100; default `'val_loss'`, alternatives `'val_dose_score'` and `'val_dvh_score'`). That epoch is marked `<- best` in the console, written as `best_epoch` in mlflow, and drawn as a dotted line in `learning_curves.png`; the test step uses that checkpoint. "Stop at which epoch" is this best epoch, if you give a reason (for example the validation curve stops falling, or starts to rise while the training curve keeps falling). A curve that is still falling at the last epoch means that the model needs more epochs. The DVH score is noisier than the loss, so look at the curve before trusting its minimum.
-- The final scores to report are the values of `history.csv` at the best epoch (train and validation dose and DVH scores). The test scores in `test_summary.csv` are for the held-out test cases (use them only once, for the final model).
-- All numbers are in normalised Gy (PTV mean = 60 Gy); lower is better.
-
-**Item 3: settings you can change** (CONFIG block of `test_notebook_rtog_imrt.py`, lines 76-108; other settings are possible by editing the code). Give every run its own name with `--run_name`, change one thing at a time, and compare the runs with `python mlflow_tools.py compare`.
-
-| Setting | Line | What it does |
-|---|---|---|
-| `UNET_ENC_CHS` | 84 | Number of filters per level, for example `(16, 32, 64, 128, 256)` (6.5 M parameters, 3.4 GiB) or `(32, 64, 128, 256, 256)` (17.0 M, 4.7 GiB). `unet3d` only. |
-| `DROPOUT_P` | 88 | Dropout probability (default 0.4; 0.0 = off). `unet3d` only; the network has one dropout layer, in the deepest encoder block. Also `--dropout`. |
-| `LR` | 81 | Learning rate (default 5e-4). Also `--lr`. |
-| `EPOCHS` | 80 | Number of epochs. Also `--epochs`. |
-| `AUGMENT_FLIP_LR` | 95 | Left-right flip on / off. To add another augmentation, edit `RTOGDoseDataset.__getitem__` (line 337); apply the same transform to input and target. |
-| `MODEL_NAME` | 79 | `'unet3d'` or `'attn_unet3d'` (the attention U-Net has fixed widths and no dropout). Also `--model`. |
-| `SELECT_BEST_BY` | 100 | Which validation metric chooses the best epoch. |
-| Add a loss term | 537-538 | For example an extra MAE inside the PTV. A tested example is in the exercises of `RTOG_IMRT_WORKFLOW.md` (section 4). |
-
-Tuning hints. The result of one run changes a little from run to run (GPU computation is not exactly reproducible), so do not over-interpret small differences between two runs. Compare runs by the **validation** dose and DVH scores, as the assignment says. Use the same split (it is the same for all runs by default).
-
-**Using the shared GPU fairly.** The GPU of the course server is shared by all students, and one run needs about 11 GiB of the 24 GB (less with fewer filters).
-
-- Run **one training at a time**; do not start two runs in parallel.
-- Before you start, check `nvidia-smi` and wait until about 12 GiB are free. If you get `torch.cuda.OutOfMemoryError`, wait; do not retry in a loop.
-- For long runs use `nohup` with unbuffered output, so that the run survives a closed SSH session and the log fills while it runs:
-
-  ```
-  mkdir -p results/rtog_imrt_teaching
-  nohup python -u test_notebook_rtog_imrt.py --run_name my_run > results/rtog_imrt_teaching/my_run.log 2>&1 &
-  ```
-
-- Close notebooks that still hold GPU memory when you are finished (restart the kernel).
-- Test your changes with the quick test (`--epochs 1 --max_cases 12`) before you start a long run.

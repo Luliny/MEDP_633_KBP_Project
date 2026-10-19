@@ -8,3 +8,6 @@ __pycache__/
 
 # OS
 .DS_Store
+
+# Excluded from uploads
+RTOG_IMRT_WORKFLOW.md
