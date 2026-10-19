@@ -76,10 +76,10 @@ We are going to use 5 organs in the models: 'cord': 1, 'esophagus': 2, 'heart': 
 
 # 4. Description of the Code
 
-The codes and setup file for the whole project is on github and shared with you at: <https://github.com/Luliny/AI_RTP>. (`git remote -v` in the working copy shows `origin https://github.com/Luliny/AI_RTP` for fetch and push.) The instructor will upload the cleaned code package there **[instructor: state the branch name once uploaded]**. You can create a local copy of the codes using the git command:
+The codes and setup file for the whole project is on github and shared with you at: <https://github.com/Luliny/MEDP_633_KBP_Project>. (`git remote -v` in the working copy shows `origin https://github.com/Luliny/MEDP_633_KBP_Project` for fetch and push.) The cleaned code package is on the `main` branch. You can create a local copy of the codes using the git command:
 
 ```
-git clone https://github.com/Luliny/AI_RTP "$YOUR_PROJECT_ROOT"
+git clone https://github.com/Luliny/MEDP_633_KBP_Project "$YOUR_PROJECT_ROOT"
 ```
 
 The project folder is `KBP_Project`. All commands in the documents are run from this folder. The package is arranged like this:
